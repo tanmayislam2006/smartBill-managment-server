@@ -78,7 +78,7 @@ async function run() {
       const updateBillInformation = req.body
       const updateDoc = {
         $set: {
-          updateBillInformation,
+          ...updateBillInformation,
         },
       };
       const result = await createdBillCollection.updateOne(filter, updateDoc);
