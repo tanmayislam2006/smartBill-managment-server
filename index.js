@@ -30,6 +30,18 @@ async function run() {
       const result = await smartBillUsersCollection.insertOne(userInformation);
       res.send(result);
     });
+    app.patch("/login",async(req,res)=>{
+      const {email,lastSignInTime} =req.body
+      const filter = { email: email };
+      const updateDoc = {
+        $set: {
+          lastSignInTime
+        },
+      };
+      const result=await smartBillUsersCollection.updateOne(filter, updateDoc);
+      res.send(result)
+    
+    })
     // get all bill
     app.get("/mybill/:uid", async (req, res) => {
       const uid = req.params.uid;
