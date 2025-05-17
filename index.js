@@ -72,12 +72,13 @@ async function run() {
       const result = await createdBillCollection.insertOne(billInformation);
       res.send(result);
     });
-    app.put("/editbill", async (req, res) => {
-      const billInformation = req.body;
-      const filter = { _id: new ObjectId(billInformation?._id) };
+    app.patch("/editbill/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updateBillInformation = req.body
       const updateDoc = {
         $set: {
-          billInformation,
+          updateBillInformation,
         },
       };
       const result = await createdBillCollection.updateOne(filter, updateDoc);
