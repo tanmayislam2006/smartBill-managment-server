@@ -24,6 +24,7 @@ async function run() {
     const createdBillCollection = client
       .db("createdBillCollection")
       .collection("createdBill");
+      const transictionCollection=client.db("transictionCollection").collection("transiction");
     app.post("/register", async (req, res) => {
       const userInformation = req.body;
       const result = await smartBillUsersCollection.insertOne(userInformation);
@@ -39,8 +40,14 @@ async function run() {
     app.get("/bill/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
-      const result=await createdBillCollection.findOne(query);
+      const result = await createdBillCollection.findOne(query);
       res.send(result);
+    });
+    app.post("/bill/:id", async (req, res) => {
+      const transictionInformation = req.body;
+      console.log(transictionInformation);
+      const result=await transictionCollection.insertOne(transictionInformation)
+      res.send(result)
     });
     app.post("/createdbill", async (req, res) => {
       const billInformation = req.body;
