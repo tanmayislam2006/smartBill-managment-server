@@ -72,7 +72,7 @@ async function run() {
       const result = await createdBillCollection.insertOne(billInformation);
       res.send(result);
     });
-    app.put("/editbil", async (req, res) => {
+    app.put("/editbill", async (req, res) => {
       const billInformation = req.body;
       const filter = { _id: new ObjectId(billInformation?._id) };
       const updateDoc = {
