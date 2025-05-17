@@ -27,11 +27,13 @@ async function run() {
     const transictionCollection = client
       .db("transictionCollection")
       .collection("transiction");
+      // crete user
     app.post("/register", async (req, res) => {
       const userInformation = req.body;
       const result = await smartBillUsersCollection.insertOne(userInformation);
       res.send(result);
     });
+    // update user login information 
     app.patch("/login", async (req, res) => {
       const { email, lastSignInTime } = req.body;
       const filter = { email: email };
@@ -46,19 +48,28 @@ async function run() {
       );
       res.send(result);
     });
-    // get all bill
+    // get all bill from db
     app.get("/mybill/:uid", async (req, res) => {
       const uid = req.params.uid;
       const query = { uid: uid };
       const result = await createdBillCollection.find(query).toArray();
       res.send(result);
     });
+    // single bill details 
     app.get("/bill/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await createdBillCollection.findOne(query);
       res.send(result);
     });
+    // load user transiction 
+    app.get("/transiction/:uid", async (req, res) => {
+      const uid = req.params.uid;
+      const query = { uid: uid };
+      const result = await transictionCollection.find(query).toArray();
+      res.send(result);
+    });
+    // transiction created 
     app.post("/bill/:id", async (req, res) => {
       const transictionInformation = req.body;
       console.log(transictionInformation);
@@ -67,11 +78,13 @@ async function run() {
       );
       res.send(result);
     });
+    // create bill
     app.post("/createdbill", async (req, res) => {
       const billInformation = req.body;
       const result = await createdBillCollection.insertOne(billInformation);
       res.send(result);
     });
+    // edit bill 
     app.patch("/editbill/:id", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
