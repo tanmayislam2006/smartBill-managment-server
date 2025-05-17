@@ -24,24 +24,28 @@ async function run() {
     const createdBillCollection = client
       .db("createdBillCollection")
       .collection("createdBill");
-      const transictionCollection=client.db("transictionCollection").collection("transiction");
+    const transictionCollection = client
+      .db("transictionCollection")
+      .collection("transiction");
     app.post("/register", async (req, res) => {
       const userInformation = req.body;
       const result = await smartBillUsersCollection.insertOne(userInformation);
       res.send(result);
     });
-    app.patch("/login",async(req,res)=>{
-      const {email,lastSignInTime} =req.body
+    app.patch("/login", async (req, res) => {
+      const { email, lastSignInTime } = req.body;
       const filter = { email: email };
       const updateDoc = {
         $set: {
-          lastSignInTime
+          lastSignInTime,
         },
       };
-      const result=await smartBillUsersCollection.updateOne(filter, updateDoc);
-      res.send(result)
-    
-    })
+      const result = await smartBillUsersCollection.updateOne(
+        filter,
+        updateDoc
+      );
+      res.send(result);
+    });
     // get all bill
     app.get("/mybill/:uid", async (req, res) => {
       const uid = req.params.uid;
@@ -58,12 +62,25 @@ async function run() {
     app.post("/bill/:id", async (req, res) => {
       const transictionInformation = req.body;
       console.log(transictionInformation);
-      const result=await transictionCollection.insertOne(transictionInformation)
-      res.send(result)
+      const result = await transictionCollection.insertOne(
+        transictionInformation
+      );
+      res.send(result);
     });
     app.post("/createdbill", async (req, res) => {
       const billInformation = req.body;
       const result = await createdBillCollection.insertOne(billInformation);
+      res.send(result);
+    });
+    app.put("/editbil", async (req, res) => {
+      const billInformation = req.body;
+      const filter = { _id: new ObjectId(billInformation?._id) };
+      const updateDoc = {
+        $set: {
+          billInformation,
+        },
+      };
+      const result = await createdBillCollection.updateOne(filter, updateDoc);
       res.send(result);
     });
     // deleted specific bil
