@@ -17,34 +17,43 @@ const client = new MongoClient(uri, {
 });
 async function run() {
   try {
-
     await client.connect();
-    const smartBillUsersCollection=client.db("smartBillUser").collection("smartUsers")
-    const createdBillCollection=client.db("createdBillCollection").collection("createdBill")
-    app.post("/register",async (req,res)=>{
-      const userInformation =req.body
-      const result=await smartBillUsersCollection.insertOne(userInformation)
-      res.send(result)
-    })
+    const smartBillUsersCollection = client
+      .db("smartBillUser")
+      .collection("smartUsers");
+    const createdBillCollection = client
+      .db("createdBillCollection")
+      .collection("createdBill");
+    app.post("/register", async (req, res) => {
+      const userInformation = req.body;
+      const result = await smartBillUsersCollection.insertOne(userInformation);
+      res.send(result);
+    });
     // get all bill
-    app.get("/mybill/:uid",async(req,res)=>{
-      const uid=req.params.uid
-      const query={uid:uid}
-      const result=await createdBillCollection.find(query).toArray()
-      res.send(result)
-    })
-    app.post("/createdbill",async(req,res)=>{
-      const billInformation =req.body
-      const result=await createdBillCollection.insertOne(billInformation)
-      res.send(result)
-    })
-    // deleted specific bil 
-    app.delete('/bill/:id',async(req,res)=>{
-      const id =req.params.id
-      const query={_id:new ObjectId(id)}
-      const result=await createdBillCollection.deleteOne(query)
-      res.send(result)
-    })
+    app.get("/mybill/:uid", async (req, res) => {
+      const uid = req.params.uid;
+      const query = { uid: uid };
+      const result = await createdBillCollection.find(query).toArray();
+      res.send(result);
+    });
+    app.get("/bill/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result=await createdBillCollection.findOne(query);
+      res.send(result);
+    });
+    app.post("/createdbill", async (req, res) => {
+      const billInformation = req.body;
+      const result = await createdBillCollection.insertOne(billInformation);
+      res.send(result);
+    });
+    // deleted specific bil
+    app.delete("/bill/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await createdBillCollection.deleteOne(query);
+      res.send(result);
+    });
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
