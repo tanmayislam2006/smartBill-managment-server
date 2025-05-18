@@ -27,13 +27,20 @@ async function run() {
     const transictionCollection = client
       .db("transictionCollection")
       .collection("transiction");
-      // crete user
+    // get user with his email
+    app.get("/user/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const user = await smartBillUsersCollection.findOne(query);
+      res.send(user);
+    });
+    // crete user
     app.post("/register", async (req, res) => {
       const userInformation = req.body;
       const result = await smartBillUsersCollection.insertOne(userInformation);
       res.send(result);
     });
-    // update user login information 
+    // update user login information
     app.patch("/login", async (req, res) => {
       const { email, lastSignInTime } = req.body;
       const filter = { email: email };
@@ -55,21 +62,21 @@ async function run() {
       const result = await createdBillCollection.find(query).toArray();
       res.send(result);
     });
-    // single bill details 
+    // single bill details
     app.get("/bill/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await createdBillCollection.findOne(query);
       res.send(result);
     });
-    // load user transiction 
+    // load user transiction
     app.get("/transiction/:uid", async (req, res) => {
       const uid = req.params.uid;
       const query = { uid: uid };
       const result = await transictionCollection.find(query).toArray();
       res.send(result);
     });
-    // transiction created 
+    // transiction created
     app.post("/bill/:id", async (req, res) => {
       const transictionInformation = req.body;
       console.log(transictionInformation);
@@ -84,11 +91,11 @@ async function run() {
       const result = await createdBillCollection.insertOne(billInformation);
       res.send(result);
     });
-    // edit bill 
+    // edit bill
     app.patch("/editbill/:id", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
-      const updateBillInformation = req.body
+      const updateBillInformation = req.body;
       const updateDoc = {
         $set: {
           ...updateBillInformation,
@@ -104,13 +111,8 @@ async function run() {
       const result = await createdBillCollection.deleteOne(query);
       res.send(result);
     });
-    // get user by email
-    app.get("/user/:uid", async (req, res) => {
-      const uid = req.params.uid;
-      const query = { uid: uid };
-      const user = await smartBillUsersCollection.findOne(query);
-      res.send(user);
-    });
+    // get user by uid
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
