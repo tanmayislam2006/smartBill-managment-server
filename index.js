@@ -104,6 +104,13 @@ async function run() {
       const result = await createdBillCollection.deleteOne(query);
       res.send(result);
     });
+    // get user by email
+    app.get("/user/:uid", async (req, res) => {
+      const uid = req.params.uid;
+      const query = { uid: uid };
+      const user = await smartBillUsersCollection.findOne(query);
+      res.send(user);
+    });
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
