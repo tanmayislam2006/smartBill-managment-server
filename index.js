@@ -3,18 +3,17 @@ const app = express();
 const port = process.env.PORT || 4000;
 require("dotenv").config();
 const cors = require("cors");
-const cookieParser = require("cookie-parser");
+const coiikieParser = require("cookie-parser");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 app.use(
   cors({
-    origin: ["http://localhost:5173","https://smart-bill-manager-8076b.web.app"],
+    origin: ["http://localhost:5173"],
     credentials: true,
   })
 );
 app.use(express.json());
-app.use(cookieParser());
+app.use(coiikieParser());
 const jwt = require("jsonwebtoken");
-// console.log(process.env.DB_USER, process.env.DB_PASSWORD);
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.kn8r7rw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 const client = new MongoClient(uri, {
   serverApi: {
@@ -25,10 +24,22 @@ const client = new MongoClient(uri, {
 });
 const verifyToken = (req, res, next) => {
   // get token
-
-  console.log(req.cookies,"tanmay");
-
-  next();
+  const getToken = req.cookies.yourToken;
+  if (!getToken) {
+    return res.status(401).send({ message: "unauthorized access" });
+  }
+  jwt.verify(getToken, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(401).send({ message: "unauthorized access" });
+    }
+    req.decoded = decoded;
+    next();
+  });
+};
+const isUidCirrect = (uid, decodedUid) => {
+  if (uid !== decodedUid) {
+    return res.status(403).send({ message: "forbidden access" });
+  }
 };
 async function run() {
   try {
@@ -58,7 +69,7 @@ async function run() {
       res.cookie("yourToken", token, {
         httpOnly: true,
         secure: false,
-        sameSite: true
+        sameSite: true,
       });
       res.send({ success: "your token set in cookie" });
     });
@@ -86,6 +97,10 @@ async function run() {
     // get all bill from db
     app.get("/mybill/:uid", verifyToken, async (req, res) => {
       const uid = req.params.uid;
+      const decodedUid = req.decoded.uid;
+      if (uid !== decodedUid) {
+        return res.status(403).send({ message: "forbidden access" });
+      }
       const query = { uid: uid };
       const result = await createdBillCollection.find(query).toArray();
       res.send(result);
@@ -98,8 +113,12 @@ async function run() {
       res.send(result);
     });
     // load user transiction
-    app.get("/transiction/:uid", async (req, res) => {
+    app.get("/transiction/:uid", verifyToken, async (req, res) => {
       const uid = req.params.uid;
+      const decodedUid = req.decoded.uid;
+        if (uid !== decodedUid) {
+    return res.status(403).send({ message: "forbidden access" });
+  }
       const query = { uid: uid };
       const result = await transictionCollection.find(query).toArray();
       res.send(result);
@@ -107,7 +126,7 @@ async function run() {
     // transiction created
     app.post("/bill/:id", async (req, res) => {
       const transictionInformation = req.body;
-      console.log(transictionInformation);
+
       const result = await transictionCollection.insertOne(
         transictionInformation
       );
