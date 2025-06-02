@@ -8,6 +8,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 app.use(cors({
   origin:['http://localhost:5173'],
   credentials:true
+  
 }));
 app.use(express.json());
 app.use(coiikieParser())
@@ -45,7 +46,8 @@ async function run() {
       const token =jwt.sign(userUid,process.env.JWT_SECRET,{expiresIn:"2h"})
       res.cookie("yourToken",token,{
         httpOnly:true,
-        secure:false
+        secure:false,
+        sameSite:"none"
       })
       res.send({success:"your token set in cookie"})
     })
