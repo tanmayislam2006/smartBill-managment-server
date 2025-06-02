@@ -25,6 +25,7 @@ const client = new MongoClient(uri, {
 const verifyToken = (req, res, next) => {
   // get token
   const getToken = req.cookies.yourToken;
+  console.log(getToken,'token paichi');
   if (!getToken) {
     return res.status(401).send({ message: "unauthorized access" });
   }
@@ -35,11 +36,6 @@ const verifyToken = (req, res, next) => {
     req.decoded = decoded;
     next();
   });
-};
-const isUidCirrect = (uid, decodedUid) => {
-  if (uid !== decodedUid) {
-    return res.status(403).send({ message: "forbidden access" });
-  }
 };
 async function run() {
   try {
