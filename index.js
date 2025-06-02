@@ -26,7 +26,7 @@ const client = new MongoClient(uri, {
 const verifyToken = (req, res, next) => {
   // get token
 
-  console.log(req.cookies);
+  console.log(req.cookies,"tanmay");
 
   next();
 };
@@ -58,7 +58,7 @@ async function run() {
       res.cookie("yourToken", token, {
         httpOnly: true,
         secure: false,
-        sameSite: "none",
+        sameSite: true
       });
       res.send({ success: "your token set in cookie" });
     });
