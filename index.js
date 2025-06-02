@@ -7,7 +7,7 @@ const cookieParser = require("cookie-parser");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 app.use(
   cors({
-    origin: ["http://localhost:5173","https://smart-bill-manager-8076b.web.app/"],
+    origin: ["http://localhost:5173","https://smart-bill-manager-8076b.web.app"],
     credentials: true,
   })
 );
