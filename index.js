@@ -3,9 +3,15 @@ const app = express();
 const port = process.env.PORT || 4000;
 require("dotenv").config();
 const cors = require("cors");
+const coiikieParser = require('cookie-parser');
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
-app.use(cors());
+app.use(cors({
+  origin:['http://localhost:5173'],
+  credentials:true
+}));
 app.use(express.json());
+app.use(coiikieParser())
+const jwt=require("jsonwebtoken")
 // console.log(process.env.DB_USER, process.env.DB_PASSWORD);
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.kn8r7rw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 const client = new MongoClient(uri, {
@@ -34,6 +40,15 @@ async function run() {
       const user = await smartBillUsersCollection.findOne(query);
       res.send(user);
     });
+    app.post('/jsonwebtoken',async(req,res)=>{
+      const userUid=req.body
+      const token =jwt.sign(userUid,process.env.JWT_SECRET,{expiresIn:"2h"})
+      res.cookie("yourToken",token,{
+        httpOnly:true,
+        secure:false
+      })
+      res.send({success:"your token set in cookie"})
+    })
     // crete user
     app.post("/register", async (req, res) => {
       const userInformation = req.body;
