@@ -7,7 +7,10 @@ const coiikieParser = require("cookie-parser");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 app.use(
   cors({
-    origin: ["http://localhost:5173","https://smart-bill-manager-8076b.web.app"],
+    origin: [
+      "http://localhost:5173",
+      "https://smart-bill-manager-8076b.web.app",
+    ],
     credentials: true,
   })
 );
@@ -22,10 +25,18 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   },
 });
+
+const admin = require("firebase-admin");
+
+const serviceAccount = require("./firebaseAdmin.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
+
 const verifyToken = (req, res, next) => {
   // get token
   const getToken = req.cookies.yourToken;
-  console.log(getToken,'token paichi');
   if (!getToken) {
     return res.status(401).send({ message: "unauthorized access" });
   }
@@ -36,6 +47,22 @@ const verifyToken = (req, res, next) => {
     req.decoded = decoded;
     next();
   });
+};
+const verifyFirebaseToken = async (req, res, next) => {
+  const authoriztion = req.headers?.authoriztion;
+  if (!authoriztion || !authoriztion.startsWith(`Bearer `)) {
+    return res.status(401).send({ message: "unauthorized access" });
+    // now get token
+  }
+  const getToken = authoriztion.split(" ")[1];
+  try {
+    const  userInfo =await admin.auth().verifyIdToken(getToken)
+    req.tokenUid=userInfo.uid
+
+    next();
+  } catch {
+    return res.status(401).send({ message: "unauthorized access" });
+  }
 };
 async function run() {
   try {
@@ -109,12 +136,11 @@ async function run() {
       res.send(result);
     });
     // load user transiction
-    app.get("/transiction/:uid", verifyToken, async (req, res) => {
+    app.get("/transiction/:uid", verifyFirebaseToken, async (req, res) => {
       const uid = req.params.uid;
-      const decodedUid = req.decoded.uid;
-        if (uid !== decodedUid) {
-    return res.status(403).send({ message: "forbidden access" });
-  }
+      if(req.tokenUid !== uid){
+         return res.status(403).send({ message: "forbidden access" });
+      }
       const query = { uid: uid };
       const result = await transictionCollection.find(query).toArray();
       res.send(result);
