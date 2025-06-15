@@ -129,7 +129,7 @@ async function run() {
       res.send(result);
     });
     // single bill details
-    app.get("/bill/:id", async (req, res) => {
+    app.get("/bill/:id",verifyToken, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await createdBillCollection.findOne(query);
